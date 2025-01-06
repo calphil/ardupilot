@@ -26,7 +26,15 @@
 
 #define HAL_ESP32_BOARD_NAME "esp32s3empty"
 
+//phil RMT  //doubled up??
 #define HAL_ESP32_RMT_RX_PIN_NUMBER GPIO_NUM_14
+#define HAL_ESP32_RCIN GPIO_NUM_14
+// so disable RC in:
+//in ESP32_class.cpp:79 static ESP32::RCInput rcinDriver;
+#define philNOTinRMTRCindummy 1
+#undef HAL_ESP32_RCIN
+//in RCInput.cpp #if AP_RCPROTOCOL_ENABLED
+#undef AP_RCPROTOCOL_ENABLED
 
 // no sensors
 #define HAL_INS_DEFAULT HAL_INS_NONE
@@ -43,8 +51,9 @@
 #define HAL_DISABLE_ADC_DRIVER 1
 #define HAL_USE_ADC 0
 
-// 2 use udp, 1 use tcp...  for udp,client needs to connect as UDPCL in missionplanner etc to 192.168.4.1 port 14550
-#define HAL_ESP32_WIFI 2
+// 2 use udp, 1 use tcp...  for udp,null for none
+#undef HAL_ESP32_WIFI 
+//#define HAL_ESP32_WIFI 2
 
 // see boards.py
 #ifndef ENABLE_HEAP
@@ -91,5 +100,6 @@
 
 #define AP_FILESYSTEM_ESP32_ENABLED 0
 #define AP_SCRIPTING_ENABLED 0
+
 #define HAL_USE_EMPTY_STORAGE 1
 

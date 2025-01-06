@@ -14,6 +14,9 @@
  */
 #pragma once
 
+//phil set up debugging
+//set in SPIDevice.cpp #define SPIDEBUG 1
+
 #define CONFIG_HAL_BOARD_SUBTYPE HAL_BOARD_SUBTYPE_ESP32_S3DEVKIT
 // make sensor selection clearer
 #define PROBE_IMU_I2C(driver, bus, addr, args ...) ADD_BACKEND(AP_InertialSensor_ ## driver::probe(*this,GET_I2C_DEVICE(bus, addr),##args))
@@ -37,7 +40,6 @@
 
 #define HAL_ESP32_BOARD_NAME "esp32s3devkit"
 
-#define HAL_ESP32_RMT_RX_PIN_NUMBER GPIO_NUM_14
 
 //#define CONFIG_HAL_BOARD 12
 //#define HAL_BOARD_ESP32 12
@@ -82,7 +84,10 @@
 // ADC is available on lots of pints on the esp32, but adc2 cant co-exist with wifi we choose to allow ADC on :
 //#define HAL_DISABLE_ADC_DRIVER 1
 #define TRUE 1
-#define HAL_USE_ADC TRUE
+#define HAL_DISABLE_ADC_DRIVER 1
+#define HAL_USE_ADC 0
+                // phil ADC1 doesnt exist in esp only in cbios
+
 
 // the pin number, the gain/multiplier associated with it, the ardupilot name for the pin in parameter/s.
 //
@@ -152,9 +157,13 @@
 //#define HAL_ESP32_SPI_BUSES {}
 
 // SPI per-device setup, including speeds, etc.
-#define HAL_ESP32_SPI_DEVICES \
-    {.name="mpu9250", .bus=0, .device=0, .cs=GPIO_NUM_34,  .mode = 0, .lspeed=2*MHZ, .hspeed=8*MHZ}
+//phil no 34 > pin38
+#define HAL_ESP32_SPI_DEVICES     {.name="mpu9250", .bus=0, .device=0, .cs=GPIO_NUM_38,  .mode = 0, .lspeed=2*MHZ, .hspeed=8*MHZ}
 //#define HAL_ESP32_SPI_DEVICES {}
+//phil spi IS not working
+//been battling this for weeks and weeks 
+//Setting breakpoint at 0x4037eadd and returning...  Guru Meditation Error: Core  0 panic'ed (LoadProhibited). Excepti
+//this is happening in spi area running debugger and throws user def error so doesnt immediately crash
 
 //I2C bus list
 #define HAL_ESP32_I2C_BUSES \
@@ -162,15 +171,28 @@
 //#define HAL_ESP32_I2C_BUSES {} // using this embty block appears to cause crashes?
 
 
-// rcin on what pin?
+//phil RMT Halt cause (assert failed: rmt_ll_rx_set_carrier_high_low_ticks /IDF/components/hal/esp32s3/include/hal/rmt_ll.h:656 (high_ticks >= 1 && high_ticks <= 65536 && low_ticks >= 1 && low_ticks <= 65536 && "out of ran)
+//doubled up??
+#define HAL_ESP32_RMT_RX_PIN_NUMBER GPIO_NUM_14
 #define HAL_ESP32_RCIN GPIO_NUM_14
+// so disable RC in:
+//in ESP32_class.cpp:79 static ESP32::RCInput rcinDriver;
+#define philNOTinRMTRCindummy 1
+#undef HAL_ESP32_RCIN
+//in RCInput.cpp #if AP_RCPROTOCOL_ENABLED
+#undef AP_RCPROTOCOL_ENABLED
+
 
 
 //HARDWARE UARTS
 #define HAL_ESP32_UART_DEVICES \
   {.port=UART_NUM_0, .rx=GPIO_NUM_44, .tx=GPIO_NUM_43 },{.port=UART_NUM_1, .rx=GPIO_NUM_17, .tx=GPIO_NUM_18 }
 
-#define HAVE_FILESYSTEM_SUPPORT 1
+//phil in ESP32_class.cpp  #ifdef HAL_USE_EMPTY_STORAGE
+#define HAL_USE_EMPTY_STORAGE
+
+//phil#define HAVE_FILESYSTEM_SUPPORT 1
+#define HAVE_FILESYSTEM_SUPPORT 0 
 
 // Do u want to use mmc or spi mode for the sd card, this is board specific ,
 //  as mmc uses specific pins but is quicker,

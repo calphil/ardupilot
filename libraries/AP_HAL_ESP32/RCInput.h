@@ -20,7 +20,9 @@
 
 #include <AP_RCProtocol/AP_RCProtocol.h>
 
+#ifndef philNOTinRMTRCindummy 
 #include "RmtSigReader.h"
+#endif
 
 #ifndef RC_INPUT_MAX_CHANNELS
 #define RC_INPUT_MAX_CHANNELS 18
@@ -71,5 +73,7 @@ private:
 
     bool pulse_input_enabled;
 
+#ifndef philNOTinRMTRCindummy 
     ESP32::RmtSigReader sig_reader;
+#endif    
 };

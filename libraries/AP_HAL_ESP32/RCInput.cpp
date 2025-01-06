@@ -39,9 +39,11 @@ void RCInput::init()
     AP::RC().init();
 #endif
 
+#ifndef philNOTinRMTRCindummy 
 #ifdef HAL_ESP32_RCIN
     sig_reader.init();
     pulse_input_enabled = true;
+#endif
 #endif
 
     _init = true;
@@ -126,6 +128,7 @@ void RCInput::_timer_tick(void)
 #if AP_RCPROTOCOL_ENABLED
     AP_RCProtocol &rcprot = AP::RC();
 
+#ifndef philNOTinRMTRCindummy 
 #ifdef HAL_ESP32_RCIN
     if (pulse_input_enabled) {
         uint32_t width_s0, width_s1;
@@ -134,7 +137,7 @@ void RCInput::_timer_tick(void)
         }
     }
 #endif
-
+#endif
 #endif  // AP_RCPROTOCOL_ENABLED
 
 #if AP_RCPROTOCOL_ENABLED
