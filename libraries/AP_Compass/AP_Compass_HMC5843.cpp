@@ -32,8 +32,9 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/sparse-endian.h>
 #include <AP_HAL/AP_HAL.h>
-#include <AP_InertialSensor/AP_InertialSensor.h>
-#include <AP_InertialSensor/AuxiliaryBus.h>
+//phil
+// #include <AP_InertialSensor/AP_InertialSensor.h>
+// #include <AP_InertialSensor/AuxiliaryBus.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -125,32 +126,33 @@ AP_Compass_Backend *AP_Compass_HMC5843::probe(AP_HAL::OwnPtr<AP_HAL::Device> dev
 
     return sensor;
 }
+//phil
+// #if AP_INERTIALSENSOR_ENABLED
+// AP_Compass_Backend *AP_Compass_HMC5843::probe_mpu6000(enum Rotation rotation)
+// {
+//     AP_InertialSensor &ins = *AP_InertialSensor::get_singleton();
 
-#if AP_INERTIALSENSOR_ENABLED
-AP_Compass_Backend *AP_Compass_HMC5843::probe_mpu6000(enum Rotation rotation)
-{
-    AP_InertialSensor &ins = *AP_InertialSensor::get_singleton();
+//     AP_HMC5843_BusDriver *bus =
+//         NEW_NOTHROW AP_HMC5843_BusDriver_Auxiliary(ins, HAL_INS_MPU60XX_SPI,
+//                                            HAL_COMPASS_HMC5843_I2C_ADDR);
+//     if (!bus) {
+//         return nullptr;
+//     }
 
-    AP_HMC5843_BusDriver *bus =
-        NEW_NOTHROW AP_HMC5843_BusDriver_Auxiliary(ins, HAL_INS_MPU60XX_SPI,
-                                           HAL_COMPASS_HMC5843_I2C_ADDR);
-    if (!bus) {
-        return nullptr;
-    }
+//     AP_Compass_HMC5843 *sensor = NEW_NOTHROW AP_Compass_HMC5843(bus, false, rotation);
+//     if (!sensor || !sensor->init()) {
+//         delete sensor;
+//         return nullptr;
+//     }
 
-    AP_Compass_HMC5843 *sensor = NEW_NOTHROW AP_Compass_HMC5843(bus, false, rotation);
-    if (!sensor || !sensor->init()) {
-        delete sensor;
-        return nullptr;
-    }
-
-    return sensor;
-}
-#endif
+//     return sensor;
+// }
+// #endif
 
 bool AP_Compass_HMC5843::init()
 {
     AP_HAL::Semaphore *bus_sem = _bus->get_semaphore();
+    DEV_PRINTF("HMC5843:  phil-init");
 
     if (!bus_sem) {
         DEV_PRINTF("HMC5843: Unable to get bus semaphore\n");
@@ -488,102 +490,124 @@ AP_HAL::Device::PeriodicHandle AP_HMC5843_BusDriver_HALDevice::register_periodic
 }
 
 
-#if AP_INERTIALSENSOR_ENABLED
-/* HMC5843 on an auxiliary bus of IMU driver */
-AP_HMC5843_BusDriver_Auxiliary::AP_HMC5843_BusDriver_Auxiliary(AP_InertialSensor &ins, uint8_t backend_id,
-                                                               uint8_t addr)
-{
-    /*
-     * Only initialize members. Fails are handled by configure or while
-     * getting the semaphore
-     */
-    _bus = ins.get_auxiliary_bus(backend_id);
-    if (!_bus) {
-        return;
-    }
+// #if AP_INERTIALSENSOR_ENABLED
+// /* HMC5843 on an auxiliary bus of IMU driver */
+// AP_HMC5843_BusDriver_Auxiliary::AP_HMC5843_BusDriver_Auxiliary(AP_InertialSensor &ins, uint8_t backend_id,
+//                                                                uint8_t addr)
+// {
+//     /*
+//      * Only initialize members. Fails are handled by configure or while
+//      * getting the semaphore
+//      */
+//     _bus = ins.get_auxiliary_bus(backend_id);
+//     if (!_bus) {
+//         return;
+//     }
 
-    _slave = _bus->request_next_slave(addr);
-}
+//     _slave = _bus->request_next_slave(addr);
+// }
 
-AP_HMC5843_BusDriver_Auxiliary::~AP_HMC5843_BusDriver_Auxiliary()
-{
-    /* After started it's owned by AuxiliaryBus */
-    if (!_started) {
-        delete _slave;
-    }
-}
+// AP_HMC5843_BusDriver_Auxiliary::~AP_HMC5843_BusDriver_Auxiliary()
+// {
+//     /* After started it's owned by AuxiliaryBus */
+//     if (!_started) {
+//         delete _slave;
+//     }
+// }
 
-bool AP_HMC5843_BusDriver_Auxiliary::block_read(uint8_t reg, uint8_t *buf, uint32_t size)
-{
-    if (_started) {
-        /*
-         * We can only read a block when reading the block of sample values -
-         * calling with any other value is a mistake
-         */
-        if (reg != HMC5843_REG_DATA_OUTPUT_X_MSB) {
-            return false;
-        }
+// bool AP_HMC5843_BusDriver_Auxiliary::block_read(uint8_t reg, uint8_t *buf, uint32_t size)
+// {
+//     if (_started) {
+//         /*
+//          * We can only read a block when reading the block of sample values -
+//          * calling with any other value is a mistake
+//          */
+//         if (reg != HMC5843_REG_DATA_OUTPUT_X_MSB) {
+//             return false;
+//         }
 
-        int n = _slave->read(buf);
-        return n == static_cast<int>(size);
-    }
+//         int n = _slave->read(buf);
+//         return n == static_cast<int>(size);
+//     }
 
-    int r = _slave->passthrough_read(reg, buf, size);
+//     int r = _slave->passthrough_read(reg, buf, size);
 
-    return r > 0 && static_cast<uint32_t>(r) == size;
-}
+//     return r > 0 && static_cast<uint32_t>(r) == size;
+// }
 
-bool AP_HMC5843_BusDriver_Auxiliary::register_read(uint8_t reg, uint8_t *val)
-{
-    return _slave->passthrough_read(reg, val, 1) == 1;
-}
+// bool AP_HMC5843_BusDriver_Auxiliary::register_read(uint8_t reg, uint8_t *val)
+// {
+//     return _slave->passthrough_read(reg, val, 1) == 1;
+// }
 
-bool AP_HMC5843_BusDriver_Auxiliary::register_write(uint8_t reg, uint8_t val)
-{
-    return _slave->passthrough_write(reg, val) == 1;
-}
+// bool AP_HMC5843_BusDriver_Auxiliary::register_write(uint8_t reg, uint8_t val)
+// {
+//     //#if AP_INERTIALSENSOR_ENABLED
+//     // AP_Compass_Backend *AP_Compass_HMC5843::probe_mpu6000(enum Rotation rotation)
+//     // {
+//     //     AP_InertialSensor &ins = *AP_InertialSensor::get_singleton();
+    
+//     //     AP_HMC5843_BusDriver *bus =
+//     //         NEW_NOTHROW AP_HMC5843_BusDriver_Auxiliary(ins, HAL_INS_MPU60XX_SPI,
+//     //                                            HAL_COMPASS_HMC5843_I2C_ADDR);
+//     //     if (!bus) {
+//     //         return nullptr;
+//     //     }
+    
+//     //     AP_Compass_HMC5843 *sensor = NEW_NOTHROW AP_Compass_HMC5843(bus, false, rotation);
+//     //     if (!sensor || !sensor->init()) {
+//     //         delete sensor;
+//     //         return nullptr;
+//     //     }
+    
+//     //     return sensor;
+//     // }
+//     // #endif
+    
+//     return _slave->passthrough_write(reg, val) == 1;
+// }
 
-AP_HAL::Semaphore *AP_HMC5843_BusDriver_Auxiliary::get_semaphore()
-{
-    return _bus->get_semaphore();
-}
+// AP_HAL::Semaphore *AP_HMC5843_BusDriver_Auxiliary::get_semaphore()
+// {
+//     return _bus->get_semaphore();
+// }
 
 
-bool AP_HMC5843_BusDriver_Auxiliary::configure()
-{
-    if (!_bus || !_slave) {
-        return false;
-    }
-    return true;
-}
+// bool AP_HMC5843_BusDriver_Auxiliary::configure()
+// {
+//     if (!_bus || !_slave) {
+//         return false;
+//     }
+//     return true;
+// }
 
-bool AP_HMC5843_BusDriver_Auxiliary::start_measurements()
-{
-    if (_bus->register_periodic_read(_slave, HMC5843_REG_DATA_OUTPUT_X_MSB, 6) < 0) {
-        return false;
-    }
+// bool AP_HMC5843_BusDriver_Auxiliary::start_measurements()
+// {
+//     if (_bus->register_periodic_read(_slave, HMC5843_REG_DATA_OUTPUT_X_MSB, 6) < 0) {
+//         return false;
+//     }
 
-    _started = true;
+//     _started = true;
 
-    return true;
-}
+//     return true;
+// }
 
-AP_HAL::Device::PeriodicHandle AP_HMC5843_BusDriver_Auxiliary::register_periodic_callback(uint32_t period_usec, AP_HAL::Device::PeriodicCb cb)
-{
-    return _bus->register_periodic_callback(period_usec, cb);
-}
+// AP_HAL::Device::PeriodicHandle AP_HMC5843_BusDriver_Auxiliary::register_periodic_callback(uint32_t period_usec, AP_HAL::Device::PeriodicCb cb)
+// {
+//     return _bus->register_periodic_callback(period_usec, cb);
+// }
 
-// set device type within a device class
-void AP_HMC5843_BusDriver_Auxiliary::set_device_type(uint8_t devtype)
-{
-    _bus->set_device_type(devtype);
-}
+// // set device type within a device class
+// void AP_HMC5843_BusDriver_Auxiliary::set_device_type(uint8_t devtype)
+// {
+//     _bus->set_device_type(devtype);
+// }
 
-// return 24 bit bus identifier
-uint32_t AP_HMC5843_BusDriver_Auxiliary::get_bus_id(void) const
-{
-    return _bus->get_bus_id();
-}
-#endif  // AP_INERTIALSENSOR_ENABLED
+// // return 24 bit bus identifier
+// uint32_t AP_HMC5843_BusDriver_Auxiliary::get_bus_id(void) const
+// {
+//     return _bus->get_bus_id();
+// }
+// #endif  // AP_INERTIALSENSOR_ENABLED
 
 #endif  // AP_COMPASS_HMC5843_ENABLED

@@ -13,7 +13,8 @@
 #include <AP_HAL/Device.h>
 
 #include "AP_Compass_Backend.h"
-#include <AP_InertialSensor/AP_InertialSensor_config.h>
+//phil
+// #include <AP_InertialSensor/AP_InertialSensor_config.h>
 
 class AuxiliaryBus;
 class AuxiliaryBusSlave;
@@ -26,10 +27,10 @@ public:
     static AP_Compass_Backend *probe(AP_HAL::OwnPtr<AP_HAL::Device> dev,
                                      bool force_external,
                                      enum Rotation rotation);
-
-#if AP_INERTIALSENSOR_ENABLED
-    static AP_Compass_Backend *probe_mpu6000(enum Rotation rotation);
-#endif
+//phil
+// #if AP_INERTIALSENSOR_ENABLED
+//     static AP_Compass_Backend *probe_mpu6000(enum Rotation rotation);
+// #endif
 
     static constexpr const char *name = "HMC5843";
 
@@ -127,36 +128,37 @@ private:
     AP_HAL::OwnPtr<AP_HAL::Device> _dev;
 };
 
-#if AP_INERTIALSENSOR_ENABLED
-class AP_HMC5843_BusDriver_Auxiliary : public AP_HMC5843_BusDriver
-{
-public:
-    AP_HMC5843_BusDriver_Auxiliary(AP_InertialSensor &ins, uint8_t backend_id,
-                                   uint8_t addr);
-    virtual ~AP_HMC5843_BusDriver_Auxiliary();
+//phil
+// #if AP_INERTIALSENSOR_ENABLED
+// class AP_HMC5843_BusDriver_Auxiliary : public AP_HMC5843_BusDriver
+// {
+// public:
+//     AP_HMC5843_BusDriver_Auxiliary(AP_InertialSensor &ins, uint8_t backend_id,
+//                                    uint8_t addr);
+//     virtual ~AP_HMC5843_BusDriver_Auxiliary();
 
-    bool block_read(uint8_t reg, uint8_t *buf, uint32_t size) override;
-    bool register_read(uint8_t reg, uint8_t *val) override;
-    bool register_write(uint8_t reg, uint8_t val) override;
+//     bool block_read(uint8_t reg, uint8_t *buf, uint32_t size) override;
+//     bool register_read(uint8_t reg, uint8_t *val) override;
+//     bool register_write(uint8_t reg, uint8_t val) override;
 
-    AP_HAL::Semaphore *get_semaphore() override;
+//     AP_HAL::Semaphore *get_semaphore() override;
 
-    bool configure() override;
-    bool start_measurements() override;
+//     bool configure() override;
+//     bool start_measurements() override;
 
-    AP_HAL::Device::PeriodicHandle register_periodic_callback(uint32_t period_usec, AP_HAL::Device::PeriodicCb) override;
+//     AP_HAL::Device::PeriodicHandle register_periodic_callback(uint32_t period_usec, AP_HAL::Device::PeriodicCb) override;
 
-    // set device type within a device class
-    void set_device_type(uint8_t devtype) override;
+//     // set device type within a device class
+//     void set_device_type(uint8_t devtype) override;
 
-    // return 24 bit bus identifier
-    uint32_t get_bus_id(void) const override;
+//     // return 24 bit bus identifier
+//     uint32_t get_bus_id(void) const override;
     
-private:
-    AuxiliaryBus *_bus;
-    AuxiliaryBusSlave *_slave;
-    bool _started;
-};
-#endif  // AP_INERTIALSENSOR_ENABLED
+// private:
+//     AuxiliaryBus *_bus;
+//     AuxiliaryBusSlave *_slave;
+//     bool _started;
+// };
+//#endif  // AP_INERTIALSENSOR_ENABLED
 
 #endif // AP_COMPASS_HMC5843_ENABLED

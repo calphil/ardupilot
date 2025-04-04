@@ -1,5 +1,17 @@
 {
     "cSpell.language": "en-GB",
     "astyle.astylerc": "${workspaceFolder}/Tools/CodeStyle/astylerc",
-    "Lua.runtime.version": "Lua 5.3"
+    "Lua.runtime.version": "Lua 5.3",
+    
+    // other settings phil
+    "github.copilot.editor.enableAutoCompletions": false,
+    "github.copilot.enabled": false,
+    "github.copilot.editor.enableCodeActions": false,
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "chat.commandCenter.enabled": false,
+    "chat.agent.enabled": false
+
+    // other settings
+    
+    
 }

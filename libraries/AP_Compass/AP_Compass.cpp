@@ -721,7 +721,9 @@ Compass::Compass(void)
 //
 void Compass::init()
 {
+    DEV_PRINTF("compass before HMC5843:  phil-init");
     if (!_enabled) {
+        DEV_PRINTF("compass is NOT enabled return ");
         return;
     }
 
@@ -737,7 +739,8 @@ void Compass::init()
             break;
         }
 #if COMPASS_MAX_INSTANCES > 1
-        if (_priority_did_stored_list._priv_instance[i] != 0) {
+DEV_PRINTF("#if COMPASS_MAX_INSTANCES > 1");
+if (_priority_did_stored_list._priv_instance[i] != 0) {
             suppress_devid_save = false;
             break;
         }
@@ -842,10 +845,12 @@ void Compass::init()
 
     if (_compass_count == 0) {
         // detect available backends. Only called once
+        DEV_PRINTF("COMPASS   _detect_backends();");
         _detect_backends();
     }
 
     if (_compass_count != 0) {
+        DEV_PRINTF("_compass_count != 0");
         // get initial health status
         hal.scheduler->delay(100);
         read();
@@ -1400,9 +1405,7 @@ void Compass::_detect_backends(void)
 #endif
 
 #ifdef HAL_PROBE_EXTERNAL_I2C_COMPASSES
-    // allow boards to ask for external probing of all i2c compass types in hwdef.dat
-    _probe_external_i2c_compasses();
-    CHECK_UNREG_LIMIT_RETURN;
+    // allow boards to ask for external probing of all i2cNo Compass backends available
 #endif
 
 #if AP_COMPASS_MSP_ENABLED
@@ -1419,7 +1422,7 @@ void Compass::_detect_backends(void)
 
     if (_backend_count == 0 ||
         _compass_count == 0) {
-        DEV_PRINTF("No Compass backends available\n");
+        DEV_PRINTF("No Compass backends available only checked spi type not i2c\n");
     }
 }
 
